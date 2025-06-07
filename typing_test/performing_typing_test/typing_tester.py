@@ -1,13 +1,11 @@
 import curses
 import curses.ascii
-from etc.window_checker import WindowChecker
-from etc.colors import addstr_full_rgls_color, ColorPairs as clp
-from prompts import Prompt
+from typing_test.prompts import Prompt
 import random
-from typing_test.typing_textpad import TypingTextpad
-from typing_test.typing_test_subwindows import TypingTestInformationSubwindow
-from typing_test.words_handler import WordsHandlerStringConst as WHSC
-from prompts.subwindow_prompts.confirmation_prompt import Confirmation
+from typing_test.performing_typing_test.typing_textpad import TypingTextpad
+from typing_test.performing_typing_test.typing_test_subwindows import TypingTestInformationSubwindow
+from typing_test.performing_typing_test.words_handler import WordsHandlerStringConst as WHSC
+from typing_test.prompts.subwindow_prompts.confirmation_prompt import Confirmation
 
 
 class TestParametersStringConst:
@@ -147,7 +145,7 @@ class TypingTester(Prompt):
 
             while True:
 
-                _, redraw, do_leave = ttb.edit()
+                end, redraw, do_leave = ttb.edit()
                 if do_leave:
                     ttb.save_position()
                     try:
@@ -157,7 +155,7 @@ class TypingTester(Prompt):
                         self._do_leave = True
                     if self._do_leave:
                         break
-                if not redraw and not do_leave:
+                if end:
                     # test is over
                     break
             if self._do_leave:

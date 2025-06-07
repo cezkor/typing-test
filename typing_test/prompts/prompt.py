@@ -1,5 +1,5 @@
-from etc.alert_printing import AlertEmitter
-from etc.window_checker import WindowChecker
+from typing_test.etc.alert_printing import AlertEmitter
+from typing_test.etc.window_checker import WindowChecker
 
 
 class Prompt:

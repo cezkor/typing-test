@@ -1,13 +1,13 @@
-import curses
 
-from etc import RawKeyCodes
-from etc.colors import addstr_full_rgls_color, ColorPairs as clp
-from prompts import Prompt
-from test_statistics.file_management import try_to_read_file
-from test_statistics.stats_presentation import *
-from test_statistics.statistics_calculation import FinalDataStringConst as FDSC
-from text_handlers.oneline_textfield import OnelineTextFieldSubwindow
-from typing_test.etc import TestParametersBounds
+
+from typing_test.etc import RawKeyCodes
+from typing_test.etc.colors import addstr_full_rgls_color
+from typing_test.prompts import Prompt
+from typing_test.test_statistics.file_management import try_to_read_file
+from typing_test.test_statistics.stats_presentation import *
+from typing_test.test_statistics.statistics_calculation import FinalDataStringConst as FDSC
+from typing_test.text_handlers.oneline_textfield import OnelineTextFieldSubwindow
+
 
 
 class MainStats(Prompt):

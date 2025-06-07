@@ -1,0 +1,17 @@
+[project]
+name = "typing_test"
+version = "1.0"
+authors = [ { name="Cezary Korczowski", email="cezkorczowski@gmail.com" } ]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+
+requires-python = ">=3.11"
+
+[project.scripts]
+typing_test = "typing_test.main:entry_point"
+
+[build-system]
+requires = ["setuptools >=61", "windows-curses>=2.4.2"]
+build-backend = "setuptools.build_meta"
+
+

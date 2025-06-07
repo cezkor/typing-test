@@ -1,10 +1,9 @@
 import curses
 import curses.ascii
 
-from etc import RawKeyCodes
-from etc.colors import ColorPairs as clp
-from etc.window_checker import WindowChecker
-from text_handlers.textbox import Textbox
+from typing_test.etc import RawKeyCodes
+from typing_test.etc.window_checker import WindowChecker
+from typing_test.text_handlers.textbox import Textbox
 
 
 class AcceptingTextbox(Textbox):

@@ -1,13 +1,11 @@
-import csv
 import curses
 import curses.ascii
-from etc.window_checker import WindowChecker
-from etc.colors import ColorPairs as clp, addstr_full_rgls_color
-from prompts import Prompt
-from test_statistics.statistics_calculation import FinalDataStringConst as FDSC
-from prompts.subwindow_prompts.confirmation_prompt import Confirmation
-from test_statistics.file_management import try_to_save_to_file
-from test_statistics.stats_presentation import TabularStatsSubwindow
+from typing_test.etc.colors import ColorPairs as clp, addstr_full_rgls_color
+from typing_test.prompts import Prompt
+from typing_test.test_statistics.statistics_calculation import FinalDataStringConst as FDSC
+from typing_test.prompts.subwindow_prompts.confirmation_prompt import Confirmation
+from typing_test.test_statistics.file_management import try_to_save_to_file
+from typing_test.test_statistics.stats_presentation import TabularStatsSubwindow
 
 
 class SummaryHandler(Prompt):
@@ -77,13 +75,18 @@ class SummaryHandler(Prompt):
                     if do_it and saving.do_leave:
                         do_leave = True
                         break
+                    if do_it:
+                        break
                 else:
                     break
+
+            if do_leave:
+                break
+
             if do_save:
                 self._try_saving()
                 break
-
-            if do_leave:
+            else:
                 break
 
         self._do_leave = do_leave

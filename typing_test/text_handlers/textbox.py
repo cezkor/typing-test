@@ -1,11 +1,9 @@
-from typing import Type, Tuple
-
-from etc import RawKeyCodes
-from etc.colors import ColorPairs as clp, addstr_full_rgls_color
+from typing_test.etc import RawKeyCodes
+from typing_test.etc.colors import ColorPairs as clp, addstr_full_rgls_color
 import curses
 import curses.ascii
 import textwrap as tr
-from etc.window_checker import WindowChecker
+from typing_test.etc.window_checker import WindowChecker
 
 
 class Textbox:

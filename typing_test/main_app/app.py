@@ -2,19 +2,19 @@ import curses
 import importlib.resources
 import os
 
-import test_statistics.file_management
-from etc.alert_printing import AlertEmitter
-import prompts.whole_screen_prompts.start_screen_prompt as ss
-import prompts.whole_screen_prompts.test_parameters_prompt as tp
-import prompts.whole_screen_prompts.stats.stats_showing_prompts as stats
-from etc.colors import colors_init, set_window_colors, ColorPairs as clp
-from typing_test.typing_tester import TypingTester
-from typing_test.words_handler import WordsHandlerStringConst as WHSC
-from typing_test.typing_tester import TestParametersStringConst as TTSC
-from test_statistics.statistics_calculation import StatisticsCalculator
+from typing_test import test_statistics
+from typing_test.etc.alert_printing import AlertEmitter
+import typing_test.prompts.whole_screen_prompts.start_screen_prompt as ss
+import typing_test.prompts.whole_screen_prompts.test_parameters_prompt as tp
+import typing_test.prompts.whole_screen_prompts.stats.stats_showing_prompts as stats
+from typing_test.etc.colors import colors_init, set_window_colors, ColorPairs as clp
+from typing_test.performing_typing_test.typing_tester import TypingTester
+from typing_test.performing_typing_test.typing_tester import TestParametersStringConst as TTSC
+from typing_test.test_statistics.statistics_calculation import StatisticsCalculator
 from datetime import datetime
-from typing_test.summary import SummaryHandler
-from typing_test.typing_tester import WordLengthCategory as WLC
+from typing_test.performing_typing_test.summary import SummaryHandler
+from typing_test.performing_typing_test.typing_tester import WordLengthCategory as WLC
+
 
 class App:
 
@@ -32,7 +32,7 @@ class App:
             wordsPathObj = importlib.resources.as_file(
                 # modified file based on
                 # https://github.com/first20hours/google-10000-english/blob/master/google-10000-english-no-swears.txt
-                importlib.resources.files("etc").joinpath("words.csv")
+                importlib.resources.files("typing_test.etc").joinpath("words.csv")
             )
             with wordsPathObj as wordsPath:
                 with wordsPath.open("r", encoding="utf8") as f:

@@ -1,5 +1,5 @@
-from typing_test.words_handler import WordsHandlerStringConst as WHSC
-from typing_test.typing_tester import TestParametersStringConst as TTSC, WordLengthCategory as WLC
+from typing_test.performing_typing_test.words_handler import WordsHandlerStringConst as WHSC
+from typing_test.performing_typing_test.typing_tester import TestParametersStringConst as TTSC, WordLengthCategory as WLC
 from datetime import datetime
 
 

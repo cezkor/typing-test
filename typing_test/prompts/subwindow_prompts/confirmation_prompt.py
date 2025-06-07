@@ -1,10 +1,10 @@
 from typing import Tuple
 
-from prompts import Prompt
+from typing_test.prompts import Prompt
 import curses
 import curses.ascii
-from etc.colors import ColorPairs as clp, addstr_full_rgls_color
-from etc import RawKeyCodes
+from typing_test.etc.colors import ColorPairs as clp, addstr_full_rgls_color
+from typing_test.etc import RawKeyCodes
 
 
 class Confirmation(Prompt):

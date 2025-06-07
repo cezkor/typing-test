@@ -1,7 +1,7 @@
 from datetime import datetime
 import time
 from typing import Callable
-from test_statistics.statistics_calculation import FinalDataStringConst as FDSC
+from typing_test.test_statistics.statistics_calculation import FinalDataStringConst as FDSC
 
 
 def pod_shorten_datetime(datetime_iso_str: str):

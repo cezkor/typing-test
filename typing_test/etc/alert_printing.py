@@ -1,7 +1,7 @@
 import curses
-from etc.colors import ColorPairs as clp
-from etc.window_checker import WindowChecker
-from etc import RawKeyCodes
+from typing_test.etc.colors import ColorPairs as clp
+from typing_test.etc.window_checker import WindowChecker
+from typing_test.etc import RawKeyCodes
 
 
 class AlertEmitter:

@@ -1,4 +1,4 @@
-from main_app.app import App
+from typing_test.main_app.app import App
 from curses import wrapper
 
 
@@ -7,5 +7,9 @@ def main(stdscr):
     App(stdscr).run()
 
 
-if __name__ == '__main__':
+def entry_point():
     wrapper(main)
+
+
+if __name__ == '__main__':
+    entry_point()

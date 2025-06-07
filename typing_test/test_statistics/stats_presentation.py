@@ -1,8 +1,6 @@
 import curses
-from etc.colors import addstr_full_rgls_color, ColorPairs as clp
+from typing_test.etc.colors import ColorPairs as clp
 from .statistics_calculation import FinalDataStringConst as FDSC
-from datetime import datetime
-from typing import Callable
 from .data_presentation import PresentationOfData
 
 

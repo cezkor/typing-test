@@ -1,7 +1,6 @@
 import curses
 import curses.ascii
-from etc.window_checker import WindowChecker
-from etc.colors import addstr_full_rgls_color, ColorPairs as clp
+from typing_test.etc.colors import addstr_full_rgls_color, ColorPairs as clp
 
 
 class TypingTestInformationSubwindow:
