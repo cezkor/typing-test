@@ -11,7 +11,7 @@ requires-python = ">=3.11"
 typing_test = "typing_test.main:entry_point"
 
 [build-system]
-requires = ["setuptools >=61", "windows-curses>=2.4.2"]
+requires = ["setuptools >=61", "windows-curses>=2.4.1"]
 build-backend = "setuptools.build_meta"
 
 
