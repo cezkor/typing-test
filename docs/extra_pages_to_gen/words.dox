@@ -1,0 +1,7 @@
+/**
+    \file words.csv File containing words for performing typing tests.
+
+    This file is based on file https://github.com/first20hours/google-10000-english/blob/master/google-10000-english-no-swears.txt.
+
+    File LICENSE-words.md contains license of the original file.
+*/

@@ -1,6 +1,13 @@
-/** \mainpage Typing Test - code documentation
+/** @mainpage Typing Test - code documentation
 
 
     This is Typing Test's code documentation. This project consists of one package - \link typing_test \endlink.
+
+
+    @section Notes
+    The terminal is used in raw mode. Keyboard interrupts are not caught, but interpreted as a keystroke.
+
+    Every class that directly processes keystrokes has to provide information to its owner that user wants to leave the application (i.e. boolean variable as return value of an method processing keystrokes).
+
 */
 

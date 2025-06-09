@@ -1,8 +1,17 @@
+"""! Module for handling terminal text colors. """
+
 import curses
 import platform
 
+## Contains numbers identifying colors used in terminal.
+#
+#    @note All its members are static.
+#
+
 
 class ColorPairs:
+
+    ## Represents whitespace
     VOID = 1
     WHITE_TEXT = 1
     GRAY_TEXT = 3
@@ -11,19 +20,26 @@ class ColorPairs:
     BLUE_TEXT = 6
 
 
+##   Wrapper function for addstr(y, x, st, color_pair(color))/addstr(y, x, st).
+#
+#    Writes to given window string in given color, if colors are supported.
+#    Otherwise, it writes the string in white text.
+#
+#    @param window curses' window object
+#    @param colored window colored text support boolean
+#    @param y line number
+#    @param x column number
+#    @param st string to be written to window
+#    @param color identifier of color pair (number from ColorPairs class)
+#
 def addstr_full_rgls_color(window, colored, y, x, st, color):
-    """
-
-        wrapper for addstr(y, x, st, color_pair(color))
-
-
-    """
     if colored:
         window.addstr(y, x, st, curses.color_pair(color))
     else:
         window.addstr(y, x, st)
 
 
+## Sets color pairs of (integer from ColorPairs class, color code in terminal), if the terminal supports colors.
 def colors_init():
     curses.start_color()
     curses.use_default_colors()
@@ -47,10 +63,15 @@ def colors_init():
             curses.init_pair(ColorPairs.VOID, curses.COLOR_WHITE, -1)
 
 
-def set_window_colors(window):
+## Sets foreground and background colors of whitespace (ColorPairs.VOID) for a given window.
+#
+#    To make the color setting visible, window is also refreshed.
+#
+#    @param window curses' window object
+#
 
+def set_window_colors(window):
     if curses.has_colors():
         window.bkgdset(' ', curses.color_pair(ColorPairs.VOID))
 
     window.refresh()
-

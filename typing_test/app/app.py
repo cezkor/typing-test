@@ -1,7 +1,8 @@
+"""! This module contains the application logic. """
+
 import curses
 import importlib.resources
 import os
-
 from typing_test import test_statistics
 from typing_test.etc.alert_printing import AlertEmitter
 import typing_test.prompts.whole_screen_prompts.start_screen_prompt as ss
@@ -16,22 +17,33 @@ from typing_test.performing_typing_test.summary import SummaryHandler
 from typing_test.performing_typing_test.typing_tester import WordLengthCategory as WLC
 
 
+## Class of the Typing Test application.
 class App:
 
+    ## Creates new instance of this class. This method does the following:
+    #   1. Acquires screen object and determines color support.
+    #   2. Tries to load words file; if it fails, the user will be informed and \b has \b to leave
+    #   3. Creates main alerter object (AlertEmitter)
+    #   4. Tries to load/create score file; if it fails, the user will be informed and may continue
+    #
+    #   @param self object pointer
+    #   @param stdscr curses' screen object
     def __init__(self, stdscr):
 
+        ## Used for App.run() to tell the object to not start the app (for example unable to create score file).
         self._leave_early = False
 
+        ## curses' screen object
         self._stdscr = stdscr
         colors_init()
+        ## Variable containing information on terminal text color support
         self._colored = curses.has_colors()
         set_window_colors(self._stdscr)
 
+        ## Word set loaded from typing_test/etc/words.csv
         self._words = []
         try:
             wordsPathObj = importlib.resources.as_file(
-                # modified file based on
-                # https://github.com/first20hours/google-10000-english/blob/master/google-10000-english-no-swears.txt
                 importlib.resources.files("typing_test.etc").joinpath("words.csv")
             )
             with wordsPathObj as wordsPath:
@@ -57,8 +69,11 @@ class App:
             self._leave_early = True
             return
 
+        ## Alerter object
         self.__alerter = AlertEmitter(self._stdscr, self._colored)
 
+        ## Contains file path to the file with scores of the user.
+        # Scores are stored in user's home directory in file \c typing_score.csv.
         self._score_file_path = None
         SCORE_FILE_NAME = "typing_scores.csv"
         homeDir = os.path.expanduser("~")
@@ -84,6 +99,10 @@ class App:
             finally:
                 self._score_file_path = os.path.join(homeDir, SCORE_FILE_NAME)
 
+    ## Runs the application. Contains the main loop of the application.
+    # Exiting this method is equivalent to exiting the application. The displaying terminal is reset before exiting this
+    # method.
+    # @param self object pointer
     def run(self):
 
         if self._leave_early:
@@ -141,11 +160,10 @@ class App:
                         break
 
         except KeyboardInterrupt:
-            """ If not caught or ignored earlier """
+            # If not caught or ignored earlier
             pass
         finally:
             curses.flushinp()
             curses.nocbreak()
             self._stdscr.keypad(False)
             curses.echo()
-

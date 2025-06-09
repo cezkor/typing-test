@@ -72,11 +72,14 @@ def try_to_save_to_file(score_file_path, final_test_data: list[dict]):
         except ValueError as v:
             text = str(v)
 
-    with open(score_file_path, mode, encoding="utf-8", newline='') as f:
-        wrt = csv.DictWriter(f, [__BEG_OF_HEADER] + FDSC.constsFieldOrderList, dialect='unix', restval=__BEG_FILL)
-        if not file_existed:
-            wrt.writeheader()
-        wrt.writerows(final_test_data)
+    try:
+        with open(score_file_path, mode, encoding="utf-8", newline='') as f:
+            wrt = csv.DictWriter(f, [__BEG_OF_HEADER] + FDSC.constsFieldOrderList, dialect='unix', restval=__BEG_FILL)
+            if not file_existed:
+                wrt.writeheader()
+            wrt.writerows(final_test_data)
+    except OSError:
+        text = f"Error opening/writing to file {score_file_path}"
 
     if text is not None:
         raise ValueError(text)
