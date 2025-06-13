@@ -14,7 +14,7 @@ Doxygen, if it is needed to have code documentation.
 
 It is recommended for the terminal displaying the application to support displaying at least **40** lines and **120** columns. Most screens in the app can be displayed with less.
 
-### Install
+### Installing
 
 You can install this app with pip.
 
