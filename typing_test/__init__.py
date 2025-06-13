@@ -1,2 +1,2 @@
-"""! Typing Test package.
+"""! Typing Test main package.
 """

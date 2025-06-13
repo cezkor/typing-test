@@ -1,46 +1,47 @@
-"""! This module contains the application logic. """
+"""! Contains the application logic. """
 
 import curses
 import importlib.resources
 import os
 from typing_test import test_statistics
-from typing_test.etc.alert_printing import AlertEmitter
+from typing_test.etc.alert_printing import AlertEmitterScreen
 import typing_test.prompts.whole_screen_prompts.start_screen_prompt as ss
 import typing_test.prompts.whole_screen_prompts.test_parameters_prompt as tp
-import typing_test.prompts.whole_screen_prompts.stats.stats_showing_prompts as stats
+import typing_test.prompts.whole_screen_prompts.stats_showing_prompts as stats
 from typing_test.etc.colors import colors_init, set_window_colors, ColorPairs as clp
-from typing_test.performing_typing_test.typing_tester import TypingTester
+from typing_test.performing_typing_test.typing_tester import TypingTesterScreen
 from typing_test.performing_typing_test.typing_tester import TestParametersStringConst as TTSC
 from typing_test.test_statistics.statistics_calculation import StatisticsCalculator
 from datetime import datetime
-from typing_test.performing_typing_test.summary import SummaryHandler
+from typing_test.performing_typing_test.summary import SummaryScreen
 from typing_test.performing_typing_test.typing_tester import WordLengthCategory as WLC
 
 
 ## Class of the Typing Test application.
 class App:
 
-    ## Creates new instance of this class. This method does the following:
+    ## Initializes new instance of this class. This method does the following:
     #   1. Acquires screen object and determines color support.
     #   2. Tries to load words file; if it fails, the user will be informed and \b has \b to leave
-    #   3. Creates main alerter object (AlertEmitter)
+    #   3. Creates main alerter object (AlertEmitterScreen)
     #   4. Tries to load/create score file; if it fails, the user will be informed and may continue
     #
     #   @param self object pointer
-    #   @param stdscr curses' screen object
+    #   @param stdscr Curses' screen object
     def __init__(self, stdscr):
 
         ## Used for App.run() to tell the object to not start the app (for example unable to create score file).
         self._leave_early = False
 
-        ## curses' screen object
+        ## Curses' screen object
         self._stdscr = stdscr
         colors_init()
         ## Variable containing information on terminal text color support
         self._colored = curses.has_colors()
         set_window_colors(self._stdscr)
 
-        ## Word set loaded from typing_test/etc/words.csv
+        ## Word list loaded from typing_test/etc/words.csv
+        # Each item is a dictionary containing a word and its precomputed length (see WordLengthCategory).
         self._words = []
         try:
             wordsPathObj = importlib.resources.as_file(
@@ -70,22 +71,23 @@ class App:
             return
 
         ## Alerter object
-        self.__alerter = AlertEmitter(self._stdscr, self._colored)
+        self.__alerter = AlertEmitterScreen(self._stdscr, self._colored)
 
         ## Contains file path to the file with scores of the user.
-        # Scores are stored in user's home directory in file \c typing_score.csv.
+        # Scores are stored in user's home directory in file \c typing_scores.csv
+        # (see \ref score_data)
         self._score_file_path = None
-        SCORE_FILE_NAME = "typing_scores.csv"
+        score_file_name = test_statistics.file_management.SCORE_BASE_NAME
         homeDir = os.path.expanduser("~")
         if not os.path.exists(homeDir):
             self._leave_early = self.__alerter.print_alert("Unable to access home directory!", clp.RED_TEXT)
         else:
             try:
-                p = os.path.join(homeDir, SCORE_FILE_NAME)
-                test_statistics.file_management.try_to_save_to_file(os.path.join(homeDir, SCORE_FILE_NAME), [])
+                p = os.path.join(homeDir, score_file_name)
+                test_statistics.file_management.try_to_save_to_file(os.path.join(homeDir, score_file_name), [])
                 self._score_file_path = p
             except OSError:
-                p = os.path.join(homeDir, SCORE_FILE_NAME)
+                p = os.path.join(homeDir, score_file_name)
                 if not os.path.exists(p):
                     try:
                         test_statistics.file_management.try_to_save_to_file(p, [])
@@ -97,7 +99,7 @@ class App:
             except ValueError as v:
                 self._leave_early = self.__alerter.print_alert(str(v), clp.RED_TEXT)
             finally:
-                self._score_file_path = os.path.join(homeDir, SCORE_FILE_NAME)
+                self._score_file_path = os.path.join(homeDir, score_file_name)
 
     ## Runs the application. Contains the main loop of the application.
     # Exiting this method is equivalent to exiting the application. The displaying terminal is reset before exiting this
@@ -123,7 +125,7 @@ class App:
                 if choice == ss.Choices.LEAVE:
                     break
                 elif choice == ss.Choices.THE_TEST:
-                    picker = tp.TestParametersPicker(self._stdscr, self._colored, self.__alerter)
+                    picker = tp.TestParametersPickerScreen(self._stdscr, self._colored, self.__alerter)
                     testCount, wordCount, category = picker.prompt_user()
                     if picker.do_leave:
                         break
@@ -134,7 +136,7 @@ class App:
                         TTSC.CATEGORY: category,
                     }
                     test_began_on = datetime.utcnow()
-                    tester = TypingTester(
+                    tester = TypingTesterScreen(
                         self._stdscr,
                         self._colored,
                         self._words,
@@ -147,14 +149,14 @@ class App:
 
                     statistics = StatisticsCalculator(testData, params_of_each_test, test_began_on).calculate()
 
-                    summary = SummaryHandler(self._stdscr, self._colored, self._score_file_path, statistics,
-                                             alerter=self.__alerter)
+                    summary = SummaryScreen(self._stdscr, self._colored, self._score_file_path, statistics,
+                                            alerter=self.__alerter)
                     summary.show()
                     if summary.do_leave:
                         break
 
                 elif choice == ss.Choices.STATISTICS:
-                    statsManager = stats.MainStats(self._stdscr, self._colored, self._score_file_path)
+                    statsManager = stats.MainStatsScreen(self._stdscr, self._colored, self._score_file_path)
                     statsManager.show()
                     if statsManager.do_leave:
                         break

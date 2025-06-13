@@ -1,6 +1,6 @@
 import curses
 import curses.ascii
-from typing_test.etc.window_checker import WindowChecker
+from typing_test.etc.window_checker import WindowCheckerScreen
 from typing_test.etc.colors import addstr_full_rgls_color, ColorPairs as clp
 from typing_test.text_handlers.textbox import Textbox
 from typing_test.performing_typing_test.words_handler import WordsHandler, WordsHandlerStringConst as SC
@@ -9,7 +9,7 @@ from typing_test.performing_typing_test.words_handler import WordsHandler, Words
 class TypingTextpad(Textbox):
 
     def __init__(self, window, colored, lines: int, cols: int, begin_y: int, begin_x: int,
-                 window_checker: WindowChecker = None):
+                 window_checker: WindowCheckerScreen = None):
         super().__init__(window, colored, lines, cols, begin_y, begin_x, window_checker=window_checker, wrap_text=True)
         self._info_window = None
         self._test_text = ''
@@ -89,7 +89,7 @@ class TypingTextpad(Textbox):
         do_leave = False
         while not self._can_fit_text:
             _, x = self._window.getmaxyx()
-            do_leave = self._master_window_checker.guard_window_size(1, x + 1)
+            do_leave = self._window_checker.guard_window_size(1, x + 1)
             if do_leave:
                 break
             _, self._cols = self._window.getmaxyx()
@@ -116,9 +116,9 @@ class TypingTextpad(Textbox):
         else:
             return char
 
-    def _put_line_to_subwindow(self, lnum: int):
-        if self._subwindow is not None and lnum < self._lines:
-            swin = self._subwindow
+    def _put_line_to_subscreen(self, lnum: int):
+        if self._subscreen is not None and lnum < self._lines:
+            swin = self._subscreen
             gobDict = self._goodOrBadDict
             y, x = swin.getyx()
             if self._colored:
@@ -139,11 +139,11 @@ class TypingTextpad(Textbox):
 
                     gray_text = ''.join([test_text_line[i] for i in range(lt_len, self._cols)])
                     if len(gray_text) > 0:
-                        addstr_full_rgls_color(self._subwindow, self._colored,
+                        addstr_full_rgls_color(self._subscreen, self._colored,
                                                lnum, lt_len, gray_text, self._text_color)
                 else:
                     if lnum < len(self._test_text_lines):
-                        addstr_full_rgls_color(self._subwindow, self._colored,
+                        addstr_full_rgls_color(self._subscreen, self._colored,
                                                lnum, 0, ''.join(self._test_text_lines[lnum]), self._text_color)
             else:
                 swin.addstr(lnum, 0, self._laid_out_plaintext[lnum])
@@ -157,7 +157,7 @@ class TypingTextpad(Textbox):
         wh = self._words_handler
 
         if curses.ascii.isascii(key) and curses.ascii.isprint(key):
-            swin = self._subwindow
+            swin = self._subscreen
             y, x = swin.getyx()
 
             char_in_test_text = self._test_text_lines[y][x]
@@ -187,8 +187,8 @@ class TypingTextpad(Textbox):
 
     def _handle_backspace(self):
 
-        if self._subwindow is not None:
-            swin = self._subwindow
+        if self._subscreen is not None:
+            swin = self._subscreen
             lo = self._laid_out_plaintext
             ttc = self._ttc_checker
             wh = self._words_handler

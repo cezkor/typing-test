@@ -2,7 +2,7 @@ from typing import Tuple
 
 from typing_test.etc import RawKeyCodes
 from typing_test.prompts import Prompt
-from typing_test.text_handlers.oneline_textfield import OnelineTextFieldSubwindow
+from typing_test.text_handlers.oneline_textfield import OnelineTextFieldSubscreen
 
 import curses
 import curses.ascii
@@ -13,7 +13,7 @@ from typing_test.performing_typing_test.typing_tester import WordLengthCategory
 from typing_test.performing_typing_test.etc import TestParametersBounds as Bounds
 
 
-class TestParametersPicker(Prompt):
+class TestParametersPickerScreen(Prompt):
 
     def __init__(self, window, colored, alerter=None):
         super().__init__(window, colored, alerter)
@@ -66,7 +66,7 @@ class TestParametersPicker(Prompt):
 
             addstr_full_rgls_color(window, self._colored, 3, 0, subtext1, clp.WHITE_TEXT)
             window.refresh()
-            result, redraw, do_leave = OnelineTextFieldSubwindow(
+            result, redraw, do_leave = OnelineTextFieldSubscreen(
                 window,
                 self._colored,
                 2,
@@ -98,7 +98,7 @@ class TestParametersPicker(Prompt):
                 addstr_full_rgls_color(window, self._colored, 5, 0, subtext2, clp.WHITE_TEXT)
                 window.refresh()
                 window.move(5, len(subtext2))
-                result, redraw, do_leave = OnelineTextFieldSubwindow(
+                result, redraw, do_leave = OnelineTextFieldSubscreen(
                     window,
                     self._colored,
                     3,

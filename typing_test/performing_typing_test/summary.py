@@ -3,12 +3,12 @@ import curses.ascii
 from typing_test.etc.colors import ColorPairs as clp, addstr_full_rgls_color
 from typing_test.prompts import Prompt
 from typing_test.test_statistics.statistics_calculation import FinalDataStringConst as FDSC
-from typing_test.prompts.subwindow_prompts.confirmation_prompt import Confirmation
+from typing_test.prompts.subscreen_prompts.confirmation_prompt import ConfirmationSubscreen
 from typing_test.test_statistics.file_management import try_to_save_to_file
-from typing_test.test_statistics.stats_presentation import TabularStatsSubwindow
+from typing_test.test_statistics.stats_presentation import TabularStatsSubscreen
 
 
-class SummaryHandler(Prompt):
+class SummaryScreen(Prompt):
 
     def __init__(self, window, colored, score_file_path, test_data: list[dict], alerter=None):
         self._test_data = test_data
@@ -57,20 +57,20 @@ class SummaryHandler(Prompt):
             curses.curs_set(0)
             self._window.clear()
             self.__print_banner()
-            stw = TabularStatsSubwindow(self._window, self._colored, 1, 3+3, self._test_data, show_only)
+            stw = TabularStatsSubscreen(self._window, self._colored, 1, 3+3, self._test_data, show_only)
             stw.print()
             self._window.refresh()
             y, x = self._window.getmaxyx()
-            confirmation_subwindow = self._window.subwin(1, x - 4, y - 2, 3)
+            confirmation_subscreen_subwindow = self._window.subwin(1, x - 4, y - 2, 3)
             while True:
-                confirmation_subwindow.clear()
-                saving = Confirmation(confirmation_subwindow, self._colored, self._alerter,
-                                      yes_key=ord('y'), no_key=ord('n'),
-                                      prompt_text="Do you want to save scores and stats then go back to menu? Yes [y] "
+                confirmation_subscreen_subwindow.clear()
+                saving = ConfirmationSubscreen(confirmation_subscreen_subwindow, self._colored, self._alerter,
+                                               yes_key=ord('y'), no_key=ord('n'),
+                                               prompt_text="Do you want to save scores and stats then go back to menu? Yes [y] "
                                                   "No""[n]")
                 do_save, = saving.prompt_user()
                 if saving.do_leave or not do_save:
-                    leave_or_not_saving = Confirmation(confirmation_subwindow, self._colored, self._alerter)
+                    leave_or_not_saving = ConfirmationSubscreen(confirmation_subscreen_subwindow, self._colored, self._alerter)
                     do_it, = leave_or_not_saving.prompt_user()
                     if do_it and saving.do_leave:
                         do_leave = True

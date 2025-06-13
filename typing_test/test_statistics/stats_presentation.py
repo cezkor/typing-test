@@ -1,21 +1,48 @@
+"""! Contains subscreens for presenting score data (results and statistics)."""
+
 import curses
 from typing_test.etc.colors import ColorPairs as clp
 from .statistics_calculation import FinalDataStringConst as FDSC
 from .data_presentation import PresentationOfData
 
 
-class TabularStatsSubwindow:
+## Presents scores and statistics in a table.
+class TabularStatsSubscreen:
 
-    def __init__(self, window, colored, begin_y: int, begin_x: int, data: list[dict],
+    ## Initializes new instance of this class.
+    #
+    # This method will throw an exception if window, terminal color support or score data are not provided.
+    #
+    # @param self object pointer
+    # @param master_window window from which a subwindow for this subscreen is derived
+    # @param colored terminal text color support
+    # @param begin_y height relative to top left corner of master window at which subscreen will be drawn
+    # @param begin_x width relative to top left corner of master window at which subscreen will be drawn
+    # @param data represents data of preformed tests
+    # (as calculated by StatisticsCalculator or read from \ref score_data "score data file")
+    # @param show_only (optional) specifies which columns of data should be shown in table
+
+    def __init__(self, master_window, colored, begin_y: int, begin_x: int, data: list[dict],
                  show_only=None):
+        ## Contains upper limits for lengths of each score data field representation string
         self.__allow_span = PresentationOfData.maxLengthForPresentation
+        ## Holds identifiers of columns from \ref score_data "score data file" which never will be printed
         self.__EXCLUDED = [FDSC.TEST_COUNT]
+        ## Holds identifiers of columns from \ref score_data "score data file" which will be printed if show_only
+        # is not provided or contains only columns listed in ::__EXCLUDED
         self.__BASE_SHOW = [x for x in FDSC.constsFieldOrderList if x not in self.__EXCLUDED]
-        self._master_window = window
+        ## Window from which a subwindow for this subscreen is derived
+        self._master_window = master_window
+        ## Terminal text color support
         self._colored = colored
+        ## Height relative to top left corner of master window at which subscreen will be drawn
         self._by = begin_y
+        ## Width relative to top left corner of master window at which subscreen will be drawn
         self._bx = begin_x
+        ## Represents data of preformed tests
+        # (as calculated by StatisticsCalculator or read from \ref score_data "score data file")
         self._data = data
+        ## Holds identifiers of columns from \ref score_data "score data file" to be printed in the table
         self._show = show_only
 
         self._test_args()
@@ -27,15 +54,23 @@ class TabularStatsSubwindow:
             if len(self._show) == 0:
                 self._show = self.__BASE_SHOW
 
-        y, x = window.getmaxyx()
+        y, x = master_window.getmaxyx()
+        ## Required width of subwindow
         self._required_len = sum([self.__allow_span[n]+1 for n in self._show]) - 1
+        ## Required height of subwindow
         self._required_hgt = 2 + len(data)
         
         if y >= self._required_hgt + begin_y and x >= self._required_len + begin_x:
-            self._window = window.derwin(self._required_hgt, self._required_len, self._by, self._bx)
+            self._window = master_window.derwin(self._required_hgt, self._required_len, self._by, self._bx)
         else:
             self._window = None
 
+        ## @var _window
+        # Subwindow to which the table is printed
+
+    ## Helper method.
+    # Checks if master window, terminal text color support variable and test data were provided.
+    # @param self object pointer
     def _test_args(self):
         if self._master_window is None:
             raise ValueError('Argument window is None')
@@ -43,6 +78,9 @@ class TabularStatsSubwindow:
             raise ValueError('Argument colored is None')
         if self._data is None:
             raise ValueError('Argument data is None')
+
+    ## Helper method for printing horizontal line and column labels according to __allow_span.
+    # @param self object pointer
 
     def __print_banner(self):
 
@@ -60,26 +98,35 @@ class TabularStatsSubwindow:
         except curses.error:
             pass
 
+    ## Prints the table in subwindow.
+    # Before printing, it is checked whether master window can fit subwindow. If it is not possible, nothing is printed.
+    # If subwindow object was not created, it is created in this method. Then the table is printed with
+    # __print_banner() and _print_data() methods.
+    # @param self object pointer
+
     def print(self):
         if len(self._data) == 0:
             return
 
+        # TO DO? There is probably a better way of handling not being able to fit content (i.e. using a window checker)
+        # But that requires access to window checker - which requires refactoring.
         y, x = self._master_window.getmaxyx()
         if y < self._required_hgt + self._by or x < self._required_len + self._bx:
             return
         if self._window is None:
-            self._window = self._master_window\
-                .derwin(self._required_hgt, self._required_len, self._by, self._bx)
+            self._window = self._master_window.derwin(self._required_hgt, self._required_len, self._by, self._bx)
 
-        y, x = self._master_window.getyx()
+        y, x = self._window.getyx()
         self._window.clear()
         self.__print_banner()
 
         self._print_data()
 
         self._window.refresh()
-        self._master_window.move(y, x)
+        self._window.move(y, x)
 
+    ## Helper method for printing each row of data according to __allow_span.
+    # @param self object pointer
     def _print_data(self):
         if self._window is not None:
             i = 0
@@ -109,30 +156,57 @@ class TabularStatsSubwindow:
                 i += 1
 
 
-class SingleDataSliceStatsSubwindow:
+## Presents scores and statistics of a test in detail - each row for each field.
+class SingleDataSliceStatsSubscreen:
 
-    def __init__(self, window, colored, begin_y: int, begin_x: int, data_slice: dict):
-        self._master_window = window
+    ## Initializes new instance of this class.
+    #
+    # This method will throw an exception if window, terminal color support or score data are not provided.
+    #
+    # @param self object pointer
+    # @param master_window window from which a subwindow for this subscreen is derived
+    # @param colored terminal text color support
+    # @param begin_y height relative to top left corner of master window at which subscreen will be drawn
+    # @param begin_x width relative to top left corner of master window at which subscreen will be drawn
+    # @param data_slice represents data of a preformed test
+    # (as calculated by StatisticsCalculator or read from \ref score_data "score data file")
+
+    def __init__(self, master_window, colored, begin_y: int, begin_x: int, data_slice: dict):
+        ## Window from which a subwindow for this subscreen is derived
+        self._master_window = master_window
+        ## Terminal text color support
         self._colored = colored
+        ## Height relative to top left corner of master window at which subscreen will be drawn
         self._by = begin_y
+        ## Width relative to top left corner of master window at which subscreen will be drawn
         self._bx = begin_x
+        ## Dictionary representing a given test; contains fields represented by keys from FinalDataStringConst
         self._data = data_slice
 
         self._test_args()
 
+        ## Width for each field name
         self._name_width = max(list(map(len, FDSC.long_names.values())))
+        ## Width for each value of field
         self._value_width = max(list(PresentationOfData.maxLengthForPresentation.values()))
 
-        y, x = window.getmaxyx()
+        y, x = master_window.getmaxyx()
 
-        self.__required_len = 5 + self._name_width + 3 + self._value_width
+        ## Required width of subwindow
+        self._required_len = 5 + self._name_width + 3 + self._value_width
+        ## Required height of subwindow
         self._required_hgt = 1 + len(FDSC.constsFieldOrderList)
 
-        if y >= self._required_hgt + begin_y and x >= self.__required_len + begin_x:
-            self._window = window.derwin(self._required_hgt, self.__required_len, self._by, self._by)
+        if y >= self._required_hgt + begin_y and x >= self._required_len + begin_x:
+            self._window = master_window.derwin(self._required_hgt, self._required_len, self._by, self._bx)
         else:
             self._window = None
 
+    ## Helper method.
+    # Checks if master window, terminal text color support variable and test data were provided and if test data slice
+    # is not empty and contains all required keys for columns from \ref score_data "score data file"
+    # (from FinalDataStringConst).
+    # @param self object pointer
     def _test_args(self):
         if self._master_window is None:
             raise ValueError('Argument window is None')
@@ -146,21 +220,26 @@ class SingleDataSliceStatsSubwindow:
             if k not in self._data.keys():
                 raise ValueError(f"Data dict lacks {k}")
 
+    ## Prints test data slice.
+    # @param self object pointer
+
     def print(self):
         y, x = self._master_window.getmaxyx()
-        if y < self._required_hgt or x < self.__required_len:
+        if y < self._required_hgt + self._by or x < self._required_len + self._bx:
             return
         if self._window is None:
-            self._window = self._master_window \
-                .derwin(self._required_hgt, self.__required_len, self._by, self._by)
+            self._window = self._master_window.derwin(self._required_hgt, self._required_len, self._by, self._bx)
 
-        y, x = self._master_window.getyx()
+        y, x = self._window.getyx()
         self._window.clear()
 
         self._print_data()
 
         self._window.refresh()
-        self._master_window.move(y, x)
+        self._window.move(y, x)
+
+    ## Helper method for printing each field of test data.
+    # @param self object pointer
 
     def _print_data(self):
         if self._window is not None:
@@ -177,11 +256,11 @@ class SingleDataSliceStatsSubwindow:
                     valuePart = str(self._data[n])
                 try:
                     if self._colored:
-                        self._window.addnstr(i, 0, namePart, self.__required_len, curses.color_pair(clp.WHITE_TEXT))
+                        self._window.addnstr(i, 0, namePart, self._required_len, curses.color_pair(clp.WHITE_TEXT))
                         self._window.addnstr(i, len(namePart), valuePart,
-                                             self.__required_len, curses.color_pair(clp.BLUE_TEXT))
+                                             self._required_len, curses.color_pair(clp.BLUE_TEXT))
                     else:
-                        self._window.addnstr(i, 0, namePart + valuePart, self.__required_len)
+                        self._window.addnstr(i, 0, namePart + valuePart, self._required_len)
                 except curses.error:
                     pass
                 i += 1

@@ -3,7 +3,7 @@ from typing_test.etc.colors import ColorPairs as clp, addstr_full_rgls_color
 import curses
 import curses.ascii
 import textwrap as tr
-from typing_test.etc.window_checker import WindowChecker
+from typing_test.etc.window_checker import WindowCheckerScreen
 
 
 class Textbox:
@@ -73,11 +73,11 @@ class Textbox:
         self._y = begin_y
         self._wrap = wrap_text
         if window_checker is None:
-            mwc = self._master_window_checker = WindowChecker(window, colored)
+            mwc = self._window_checker = WindowCheckerScreen(window, colored)
             mwc.min_y, mwc.min_x = self._window.getmaxyx()
             mwc.min_y, mwc.min_x = mwc.min_y - 1, mwc.min_x - 1
         else:
-            self._master_window_checker = window_checker
+            self._window_checker = window_checker
 
         self.__test_args()
 
@@ -85,7 +85,7 @@ class Textbox:
         self._true_plaintext = self.__EMPTY
 
         self._ttc_checker = self.TerminalTraversingChecker()
-        self._subwindow = None
+        self._subscreen = None
         self._text_color = clp.WHITE_TEXT
 
         self._last_y, self._last_x = -1, -1
@@ -96,27 +96,27 @@ class Textbox:
         if self._colored is None:
             raise ValueError('Argument colored is None')
 
-    def _put_all_to_subwindow(self):
-        if self._subwindow is not None:
-            swin = self._subwindow
+    def _put_all_to_subscreen(self):
+        if self._subscreen is not None:
+            swin = self._subscreen
             swin.clear()
             for y in range(self._lines):
-                self._put_line_to_subwindow(y)
+                self._put_line_to_subscreen(y)
 
-    def _put_line_to_subwindow(self, lnum: int):
-        if self._subwindow is not None and lnum < self._lines:
-            y, x = self._subwindow.getyx()
+    def _put_line_to_subscreen(self, lnum: int):
+        if self._subscreen is not None and lnum < self._lines:
+            y, x = self._subscreen.getyx()
             try:
-                addstr_full_rgls_color(self._subwindow, self._colored,
+                addstr_full_rgls_color(self._subscreen, self._colored,
                                        lnum, 0, ''.join(self._laid_out_plaintext[lnum]),
                                        self._text_color)
             except curses.error:
                 pass
-            self._subwindow.move(y, x)
+            self._subscreen.move(y, x)
 
     def save_position(self):
-        if self._subwindow is not None and (-1, -1) != (self._last_y, self._last_x):
-            self._last_y, self._last_x = self._subwindow.getyx()
+        if self._subscreen is not None and (-1, -1) != (self._last_y, self._last_x):
+            self._last_y, self._last_x = self._subscreen.getyx()
 
     def edit(self):
 
@@ -128,8 +128,8 @@ class Textbox:
 
         """
 
-        if self._subwindow is None:
-            self._subwindow = self._window.subwin(self._lines, self._cols, self._y, self._x)
+        if self._subscreen is None:
+            self._subscreen = self._window.subwin(self._lines, self._cols, self._y, self._x)
 
             if (self._last_y, self._last_y) == (-1, -1):
                 self._last_y, self._last_x = 0, 0
@@ -137,29 +137,29 @@ class Textbox:
         curses.raw()
         curses.noecho()
         curses.curs_set(1)
-        self._subwindow.keypad(True)
+        self._subscreen.keypad(True)
 
-        self._put_all_to_subwindow()
-        self._subwindow.refresh()
-        self._subwindow.move(self._last_y, self._last_x)
+        self._put_all_to_subscreen()
+        self._subscreen.refresh()
+        self._subscreen.move(self._last_y, self._last_x)
 
         do_leave = False
         endOfEdit = False
         redraw = False
         while not endOfEdit and not redraw and not do_leave:
-            key = self._subwindow.getch()
+            key = self._subscreen.getch()
             (endOfEdit, redraw, do_leave) = self._handle_key(key)
-            self._subwindow.refresh()
+            self._subscreen.refresh()
 
         if not do_leave: # assume redraw
             self._recalc_whole_text()
-            self._last_y, self._last_x = self._subwindow.getyx()
+            self._last_y, self._last_x = self._subscreen.getyx()
         return self._true_plaintext, redraw, do_leave
 
     def _handle_backspace(self):
 
-        if self._subwindow is not None:
-            swin = self._subwindow
+        if self._subscreen is not None:
+            swin = self._subscreen
             lo = self._laid_out_plaintext
             ttc = self._ttc_checker
 
@@ -174,20 +174,20 @@ class Textbox:
                 elif lo[y][x] == self.__EMPTY and self._cols > 1 and lo[y][x - 1] != self.__EMPTY:
                     lo[y][x - 1] = self.__EMPTY
                 self._recalc_whole_text()
-                self._put_all_to_subwindow()
+                self._put_all_to_subscreen()
                 swin.move(ny, nx)
                 return
 
             if lo[ny][nx] != self.__EMPTY:
                 lo[ny][nx] = self.__EMPTY
                 self._recalc_whole_text()
-                self._put_all_to_subwindow()
+                self._put_all_to_subscreen()
                 swin.move(ny, nx)
 
     def _handle_arrow_keys(self, key: int):
-        if self._subwindow is not None and not self._has_done_editor_like_behaviour(key):
+        if self._subscreen is not None and not self._has_done_editor_like_behaviour(key):
             # behave like terminal
-            swin = self._subwindow
+            swin = self._subscreen
             y, x = swin.getyx()
             ttc = self._ttc_checker
             ny, nx = ttc.where_to_traverse(y, x, key, self._lines, self._cols)
@@ -195,8 +195,8 @@ class Textbox:
 
     def _put_printable(self, key: int):
 
-        if self._subwindow is not None:
-            swin = self._subwindow
+        if self._subscreen is not None:
+            swin = self._subscreen
             lo = self._laid_out_plaintext
             ttc = self._ttc_checker
 
@@ -206,12 +206,12 @@ class Textbox:
                 lo[y][x] = chr(curses.ascii.ascii(key))
                 if x == self._cols - 1 and y < self._lines - 1:
                     self._recalc_whole_text()
-                    self._put_all_to_subwindow()
+                    self._put_all_to_subscreen()
                 else:
                     try:
-                        self._put_line_to_subwindow(y)
+                        self._put_line_to_subscreen(y)
                     except curses.error:
-                        """ "Attempting to write to the lower right corner of a window, subwindow, or pad will 
+                        """ "Attempting to write to the lower right corner of a window, subscreen, or pad will 
                         cause an exception to be raised after the character is printed." """
 
             else:
@@ -219,13 +219,13 @@ class Textbox:
                 if len(self._true_plaintext) < self._cols * self._lines:
                     lo[y].insert(x, chr(curses.ascii.ascii(key)))
                     self._recalc_whole_text()
-                    self._put_all_to_subwindow()
+                    self._put_all_to_subscreen()
                 else:
                     lo[y][x] = chr(curses.ascii.ascii(key))
                     try:
-                        self._put_line_to_subwindow(y)
+                        self._put_line_to_subscreen(y)
                     except curses.error:
-                        """ "Attempting to write to the lower right corner of a window, subwindow, or pad will 
+                        """ "Attempting to write to the lower right corner of a window, subscreen, or pad will 
                         cause an exception to be raised after the character is printed." """
 
             # try to move to the left
@@ -240,19 +240,19 @@ class Textbox:
         redraw = False
         do_leave = False
 
-        if self._subwindow is not None:
+        if self._subscreen is not None:
 
             if key == RawKeyCodes.CTRL_E:
                 end = True
             if key == RawKeyCodes.CTRL_C:
                 do_leave = True
             elif key == curses.KEY_RESIZE:
-                do_leave = self._master_window_checker.guard_window_size()
+                do_leave = self._window_checker.guard_window_size()
                 if do_leave:
                     return False, False, True
                 # guarding window size is always responsibility of the deepest class
                 # that is interpreting user input
-                self._subwindow.clear()
+                self._subscreen.clear()
                 redraw = True
             elif key in [curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT]:
                 self._handle_arrow_keys(key)
@@ -269,11 +269,11 @@ class Textbox:
 
     def _has_done_editor_like_behaviour(self, key: int):
 
-        if self._subwindow is None:
+        if self._subscreen is None:
             pass
 
         has_intervened = False
-        swin = self._subwindow
+        swin = self._subscreen
         y, x = swin.getyx()
         ttc = self._ttc_checker
         move_like_pressed = key

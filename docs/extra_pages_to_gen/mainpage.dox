@@ -4,10 +4,17 @@
     This is Typing Test's code documentation. This project consists of one package - \link typing_test \endlink.
 
 
-    @section Notes
+    @section general_notes Notes
     The terminal is used in raw mode. Keyboard interrupts are not caught, but interpreted as a keystroke.
 
     Every class that directly processes keystrokes has to provide information to its owner that user wants to leave the application (i.e. boolean variable as return value of an method processing keystrokes).
+
+    @subsection scr_swin Screens and subscreens
+    Every class called a screen is supposed to use entire window. Every class called a subscreen is supposed to print in a part of window (usually in a curses' subwindow). Screen can use subscreens but also can write to window directly.
+    @note There are no classes for a screen nor a subscreen. Currently, these are understood only as concepts.
+    @note Although, classes considered screens or subscreens may contain \c __print_banner() helper method for
+    organizing code of printing to the terminal window. It is not a required nor always used method (see for example typing_test::etc::alert_printing::AlertEmitterScreen).
+    @important Subscreens and screens are not to be confused with Curses' screen objects.
 
 */
 

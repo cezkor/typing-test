@@ -3,9 +3,9 @@ import curses.ascii
 from typing_test.prompts import Prompt
 import random
 from typing_test.performing_typing_test.typing_textpad import TypingTextpad
-from typing_test.performing_typing_test.typing_test_subwindows import TypingTestInformationSubwindow
+from typing_test.performing_typing_test.typing_test_subscreens import TypingTestInformationSubscreen
 from typing_test.performing_typing_test.words_handler import WordsHandlerStringConst as WHSC
-from typing_test.prompts.subwindow_prompts.confirmation_prompt import Confirmation
+from typing_test.prompts.subscreen_prompts.confirmation_prompt import ConfirmationSubscreen
 
 
 class TestParametersStringConst:
@@ -55,7 +55,7 @@ class WordLengthCategory:
         return False
 
 
-class TypingTester(Prompt):
+class TypingTesterScreen(Prompt):
 
     def __init__(self, window, colored, words: list, params: dict, alerter=None):
         self._params = params
@@ -139,7 +139,7 @@ class TypingTester(Prompt):
             if self._do_leave:
                 break
 
-            ttb.info_window = TypingTestInformationSubwindow(
+            ttb.info_window = TypingTestInformationSubscreen(
                 self._window, self._colored, y - 5, 0)
             ttb.number_of_test = i+1
 
@@ -150,7 +150,7 @@ class TypingTester(Prompt):
                     ttb.save_position()
                     try:
                         cwin = self._window.derwin(1, x, y - 4, 0)
-                        self._do_leave, = Confirmation(cwin, self._colored).prompt_user()
+                        self._do_leave, = ConfirmationSubscreen(cwin, self._colored).prompt_user()
                     except curses.error:
                         self._do_leave = True
                     if self._do_leave:

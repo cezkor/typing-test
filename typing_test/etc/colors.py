@@ -1,4 +1,4 @@
-"""! Module for handling terminal text colors. """
+"""! Handling of terminal text colors. """
 
 import curses
 import platform
@@ -17,6 +17,7 @@ class ColorPairs:
     GRAY_TEXT = 3
     RED_TEXT = 4
     GREEN_TEXT = 5
+    ## Cyan
     BLUE_TEXT = 6
 
 
@@ -25,7 +26,7 @@ class ColorPairs:
 #    Writes to given window string in given color, if colors are supported.
 #    Otherwise, it writes the string in white text.
 #
-#    @param window curses' window object
+#    @param window Curses' window object
 #    @param colored window colored text support boolean
 #    @param y line number
 #    @param x column number
@@ -67,7 +68,7 @@ def colors_init():
 #
 #    To make the color setting visible, window is also refreshed.
 #
-#    @param window curses' window object
+#    @param window Curses' window object
 #
 
 def set_window_colors(window):

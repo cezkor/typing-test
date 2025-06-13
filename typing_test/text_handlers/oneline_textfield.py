@@ -2,7 +2,7 @@ import curses
 import curses.ascii
 
 from typing_test.etc import RawKeyCodes
-from typing_test.etc.window_checker import WindowChecker
+from typing_test.etc.window_checker import WindowCheckerScreen
 from typing_test.text_handlers.textbox import Textbox
 
 
@@ -15,7 +15,7 @@ class AcceptingTextbox(Textbox):
         return end, redraw, do_leave
 
 
-class OnelineTextFieldSubwindow:
+class OnelineTextFieldSubscreen:
 
     def __init__(self, window, colored, length: int = 5, begin_y: int = 0, begin_x: int = 0, window_checker=None):
 
@@ -25,7 +25,7 @@ class OnelineTextFieldSubwindow:
         self._y = begin_y
         self._x = begin_x
         if window_checker is None:
-            wc = self._window_checker = WindowChecker(window, colored)
+            wc = self._window_checker = WindowCheckerScreen(window, colored)
             y, x = self._window.getmaxyx()
             wc.min_y, wc.min_x = y - 1, x - 1
         else:
